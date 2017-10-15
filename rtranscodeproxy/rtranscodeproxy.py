@@ -367,11 +367,11 @@ class MyHTTPHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def do_HEAD(s):
         s.send_response(200)
-        s.send_header("Content-type", "text/html")
+        s.send_header("Content-type", "video/x-matroska")
         s.end_headers()
     def do_GET(s):
         s.send_response(200)
-        s.send_header("Content-type", "video/video/x-matroska")
+        s.send_header("Content-type", "video/x-matroska")
         s.end_headers()
         path = s.path
         print 'New request for: ' + path
