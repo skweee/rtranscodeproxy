@@ -12,5 +12,5 @@ __Requirements__
 __Configuration__
  * Set 'rt_proxy_host' and 'rt_proxy_port' to define where the proxy is running
  * Set 'rt_upstream_host' and 'rt_upstream_port' to define the HTTP video source
- * Define your own transcoding settings (defaults are optimized for about 10 MBit)
+ * Define your own transcoding settings (defaults are optimized for about 2.5 MBit)
 
