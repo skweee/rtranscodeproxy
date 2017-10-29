@@ -82,12 +82,13 @@ rt_ch6limit = '393216'
 ## Use 6 channels for AAC output too, if True
 aac_6ch = False
 
-## set the following to 'ac3' if you want always transcode audio to AC3, or to 'aac' to always get AAC
-## 'both' means, that it depends on the input format 
-rt_audiooutput = 'both'
-
 ## desired audio languages (listed by priority)
 rt_audiolangs = ['eng', 'deu', 'qad', 'qaa']
+
+## set the following to 'ac3' if you want always transcode audio to AC3, or to 'aac' to always get AAC
+## 'both' means, that it depends on the input format
+## audio language has priority over audio output setting
+rt_audiooutput = 'both'
 
 ## end of global preset settings
 
@@ -222,9 +223,7 @@ def analyze_uri(uri):
     mode = ''
     amode = ''
     apid = ''
-    mpegapids = {}
-    ac3pids = {}
-    aacpids = {}
+    audiopids = {}
     amodes = []
     tsstream = False
     res = get_omxplayer_info(uri)
@@ -272,14 +271,16 @@ def analyze_uri(uri):
                 pidlang = langregres.group(1)
             else:
                 pidlang = '(unknown)'
-            if regres :
+            if regres:
                 pid = regres.group()
+                if pidlang not in audiopids:
+                    audiopids[pidlang] = {}
                 if pid and 'mp2' in line:
-                    mpegapids[pidlang] = pid
+                    audiopids[pidlang]['mpeg'] = pid
                 elif pid and 'ac3' in line:
-                    ac3pids[pidlang] = pid
+                    audiopids[pidlang]['ac3'] = pid
                 elif pid and 'aac' in line:
-                    aacpids[pidlang] = pid
+                    audiopids[pidlang]['aac'] = pid
             else:
                 if 'mp2' in line:
                     amodes.append('mpeg')
@@ -287,25 +288,27 @@ def analyze_uri(uri):
                     amodes.append('ac3')
                 elif 'aac' in line:
                     amodes.append('ac3')
-    if len(mpegapids) == len(ac3pids) == len(aacpids) == 0 and len(amodes) == 1:
+    if len(audiopids) == 0 and len(amodes) == 1:
         apid = '-1'
         amode = amodes[0]
-    langs = rt_audiolangs
-    if mpegapids and not (ac3pids and rt_audiooutput == 'ac3'):
-        for lang in reversed(langs):
-            if lang in mpegapids: apid = mpegapids[lang]
-        if not apid: apid = mpegapids[next(iter(mpegapids))]
-        amode = 'mpeg'
-    elif ac3pids:
-        for lang in reversed(langs):
-            if lang in ac3pids: apid = ac3pids[lang]
-        if not apid: apid = ac3pids[next(iter(ac3pids))]
-        amode = 'ac3'
-    elif aacpids:
-        for lang in reversed(langs):
-            if lang in aacpids: apid = aacpids[lang]
-        if not apid: apid = aacpids[next(iter(aacpids))]
-        amode = 'aac'
+    if rt_audiooutput == 'ac3':
+        audio_priority = ['ac3','mpeg','aac']
+    elif rt_audiooutput == 'aac':
+        audio_priority = ['aac','mpeg','ac3']
+    else:
+        audio_priority = ['mpeg','ac3','aac']
+    for lang in reversed(rt_audiolangs):
+        if lang in audiopids: 
+            for audio_type in reversed(audio_priority):
+                if audio_type in audiopids[lang]:
+                    apid = audiopids[lang][audio_type]
+                    amode = audio_type
+    if not apid:
+        random_lang = next(iter(audiopids))
+        for audio_type in reversed(audio_priority):
+            if audio_type in audiopids[random_lang]:
+                apid = audiopids[random_lang][audio_type]
+                amode = audio_type
     return (mode,amode,apid)
 
 class gst_broadcaster:
