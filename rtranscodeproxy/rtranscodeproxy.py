@@ -64,18 +64,18 @@ rt_ac3_encoder = 'avenc_ac3 compliance=-2'
 
 # The gstreamer tool chains to be used.
 # For both video and audio transcoding:
-rt_av_template = 'souphttpsrc location="$uri$" is-live=true keep-alive=true do-timestamp=true retries=10 typefind=true blocksize=16384 name=source ! tsdemux parse-private-sections=false name=demux demux.audio$apid$ ! queue ! $audioparser$ ! $audiodecoder$ ! audioconvert dithering=0 ! audio/x-raw,channels=$channels$ ! $audioencoder$ bitrate=$abr$ ! matroskamux name=mux streamable=true demux. ! queue ! $videoparser$ ! $videodecoder$ name=dec ! omxh264enc target-bitrate=$vbr$ control-rate=variable ! video/x-h264,profile=high,width=$width$,height=$height$,framerate=$framerate$/1 ! h264parse ! queue ! mux. mux. ! multisocketsink name=sink'
+rt_av_template = 'souphttpsrc location="$uri$" is-live=true keep-alive=true do-timestamp=true retries=10 typefind=true blocksize=16384 name=source ! tsdemux parse-private-sections=false name=demux demux.audio$apid$ ! queue ! $audioparser$ ! $audiodecoder$ ! audioconvert dithering=0 ! audio/x-raw,channels=$channels$ ! $audioencoder$ bitrate=$abr$ ! matroskamux name=mux streamable=true demux. ! queue ! $videoparser$ ! $videodecoder$ name=dec ! omxh264enc target-bitrate=$vbr$ control-rate=variable ! video/x-h264,stream-format=byte-stream,profile=high,width=$width$,height=$height$,framerate=$framerate$/1 ! h264parse ! queue ! mux. mux. ! multisocketsink name=sink'
 
 # For video transcoding only, using one of the original audio tracks:
-rt_v_template = 'souphttpsrc location="$uri$" is-live=true keep-alive=true do-timestamp=true retries=10 typefind=true blocksize=16384 name=source ! tsdemux parse-private-sections=false name=demux demux.audio$apid$ ! queue ! $audioparser$ ! matroskamux name=mux streamable=true demux. ! queue ! $videoparser$ ! $videodecoder$ name=dec ! omxh264enc target-bitrate=$vbr$ control-rate=variable ! video/x-h264,profile=high,width=$width$,height=$height$,framerate=$framerate$/1 ! h264parse ! queue ! mux. mux. ! multisocketsink name=sink'
+rt_v_template = 'souphttpsrc location="$uri$" is-live=true keep-alive=true do-timestamp=true retries=10 typefind=true blocksize=16384 name=source ! tsdemux parse-private-sections=false name=demux demux.audio$apid$ ! queue ! $audioparser$ ! matroskamux name=mux streamable=true demux. ! queue ! $videoparser$ ! $videodecoder$ name=dec ! omxh264enc target-bitrate=$vbr$ control-rate=variable ! video/x-h264,stream-format=byte-stream,profile=high,width=$width$,height=$height$,framerate=$framerate$/1 ! h264parse ! queue ! mux. mux. ! multisocketsink name=sink'
 
 ## Part 2; Default values which you might want to (or should) change:
 
 ## The following settings take indices into the dictionaries above as entries
 rt_sd_video_size = '6'
-rt_hd_video_size = '2'
-rt_video_bitrate = '750000'
-rt_audio_bitrate = '65536' # set to 0 for original audio track
+rt_hd_video_size = '3'
+rt_video_bitrate = '2500000'
+rt_audio_bitrate = '131072' # set to 0 for original audio track
 
 ## start value for using 6ch ac3 audio out, by default 384K and should not be lower than 192K
 rt_ch6limit = '393216'
